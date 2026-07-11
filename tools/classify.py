@@ -1,7 +1,6 @@
 from agents import function_tool
 from schema import ClassifiedQuery, ProductCategory
 
-
 @function_tool
 def classify_query(query: str) -> ClassifiedQuery:
     query_lower = query.lower()
