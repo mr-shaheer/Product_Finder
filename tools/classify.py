@@ -5,13 +5,14 @@ from schema import ClassifiedQuery, ProductCategory
 def classify_query(query: str) -> ClassifiedQuery:
     query_lower = query.lower()
     keywords: dict[ProductCategory, list[str]] = {
-        ProductCategory.ELECTRONICS: ["phone", "laptop", "headphone", "charger", "cable", "tablet", "camera", "speaker", "tv", "monitor"],
-        ProductCategory.FASHION_APPAREL: ["shirt", "jeans", "dress", "shoes", "jacket", "hat", "socks", "belt", "watch"],
-        ProductCategory.HOME_KITCHEN: ["pan", "pot", "cup", "plate", "knife", "blender", "toaster", "furniture", "lamp", "decor"],
-        ProductCategory.BEAUTY_PERSONAL_CARE: ["serum", "moisturizer", "shampoo", "soap", "cream", "lipstick", "perfume", "toothbrush"],
-        ProductCategory.SPORTS_OUTDOORS: ["yoga", "gym", "hiking", "bike", "tent", "water bottle", "shoes", "racket", "ball"],
+        ProductCategory.Electronics: ["phone", "laptop", "headphone", "charger", "cable", "tablet", "camera", "speaker", "tv", "monitor"],
+        ProductCategory.Fashion_Apparel: ["shirt", "jeans", "dress", "shoes", "jacket", "hat", "socks", "belt", "watch"],
+        ProductCategory.Home_Kitchen: ["pan", "pot", "cup", "plate", "knife", "blender", "toaster", "furniture", "lamp", "decor"],
+        ProductCategory.Beauty_Personal_Care: ["serum", "moisturizer", "shampoo", "soap", "cream", "lipstick", "perfume", "toothbrush"],
+        ProductCategory.Sports_Outdoors: ["yoga", "gym", "hiking", "bike", "tent", "water bottle", "shoes", "racket", "ball"],
     }
-    best_category = ProductCategory.ELECTRONICS
+
+    best_category = ProductCategory.Electronics
     best_score = 0
     for category, words in keywords.items():
         score = sum(1 for w in words if w in query_lower)
