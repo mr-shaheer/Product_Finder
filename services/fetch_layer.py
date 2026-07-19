@@ -9,8 +9,12 @@ def fetch_products(category: str, query: str) -> list[dict[str, Any]]:
     cached = check_cache(cache_key)
     if cached:
         return cached
+
     results = serpapi_search(query, category)
     if not results:
         results = fallback(category, query)
-    set_cache(cache_key, results)
+
+    if results:
+        set_cache(cache_key, results)
+
     return results
