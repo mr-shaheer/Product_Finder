@@ -2,7 +2,7 @@ from agents import Agent
 from models import Default_Model
 from guardrails import block_jailbreak
 from tools.classify import classify_query
-from core_agents.Recommender import recommender
+from core_agents.recommender import recommender
 
 ORCHESTRATOR_MAXTURNS = 8
 
