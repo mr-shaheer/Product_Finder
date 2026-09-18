@@ -10,8 +10,9 @@ recommender = Agent(
           ## Steps
           1. Call `search_products` with the given category and query.
           2. Call `normalize_and_score` on the results.
-          3. Present up to 3 results by `total_score`, fewer if fewer exist. Format each as:
+          3. Briefly explain your top 3 picks by `total_score` (fewer if fewer exist), one line each:
           - **{title}** — ${price}: {one-line reason it fits, from relevance/price}
+          Mention that the full ranked list is shown separately below, in one short closing sentence.
 
           ## Rules
           - If `search_products` returns nothing, say so plainly and suggest the user rephrase. Do not invent products.
