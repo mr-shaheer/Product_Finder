@@ -2,6 +2,7 @@ from agents import Agent
 from models import Frontier_Model
 from tools.search import search_products
 from tools.scoring import normalize_and_score_products
+from agents.agent import StopAtTools
 
 recommender = Agent(
      name = "recommender",
@@ -10,7 +11,9 @@ recommender = Agent(
           ## Steps
           1. Call `search_products` with the given category and a search-friendly query
              (product type + key attributes; drop filler words like "find me").
-          2. Call `normalize_and_score_products` on the results:
+          2. Call `normalize_and_score_products` with the SAME `category` and `query` you just
+             used for `search_products` (do not pass the product list itself — this tool
+             re-fetches and scores them internally):
              - Pass `query` as the user's original request text.
              - If the user stated any budget (e.g. "under $100", "below $50", "max $200"),
                parse out the number yourself and pass it as `budget_cap` (e.g. 100.0). This is
@@ -23,8 +26,9 @@ recommender = Agent(
 
           ## Rules
           - If `search_products` returns nothing, say so plainly and suggest the user rephrase. Do not invent products.
-          - Stay in this category unless the user clearly asks about something else — if they do, say you're switching topics and hand off to Triage.
+          - Stay in this category unless the user clearly asks about something else
           - For thanks or off-topic small talk, reply briefly without re-running tools.""",
      model = Frontier_Model,
-     tools = [search_products, normalize_and_score_products]
+     tools = [search_products, normalize_and_score_products],
+     tool_use_behavior=StopAtTools(stop_at_tool_names=["normalize_and_score_products"]),
 )
