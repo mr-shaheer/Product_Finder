@@ -1,7 +1,8 @@
 import re   
 import statistics
 from agents import function_tool
-from schema import Product, ScoredProduct
+from schema import Product, ProductCategory, ScoredProduct
+from services.fetch_layer import fetch_products
 
 TRUSTED_RETAILERS = {
     "amazon.com", "walmart", "walmart.com", "best buy", "bestbuy.com",
@@ -18,12 +19,44 @@ def is_trusted(source: str) -> bool:
     return source.strip().lower() in TRUSTED_RETAILERS
 
 @function_tool
-def normalize_and_score(products: list[Product], query: str) -> list[ScoredProduct]:
+def normalize_and_score_products(
+    category: ProductCategory, query: str, budget_cap: float | None = None
+) -> list[ScoredProduct]:
+    """Score and filter products for a given category and query.
+
+    Re-fetches the same products `search_products` just found (this hits the fetch-layer
+    cache, so it's free) instead of taking them as an argument. Product data must never be
+    round-tripped through the model as a tool argument — asked to retype a whole product list
+    to hand it to this tool, the model reliably keeps required fields like title/price/url but
+    silently drops or nulls optional ones (image_url in particular) since nothing here reads
+    them for scoring, so it doesn't preserve them faithfully. Re-deriving the list in Python
+    guarantees every field, including images, survives intact.
+
+    budget_cap: an explicit max price the caller has already parsed out of the user's
+    request (e.g. 100.0 for "under $100"). Pass this whenever the user stated a budget —
+    it's used directly instead of relying on regex-detecting the phrase back out of `query`,
+    which is fragile if `query` gets reworded or shortened before it gets here. If omitted,
+    falls back to parsing `query` for a budget phrase.
+    """
+    raw = fetch_products(category.value, query)
+    products = [
+        Product(
+            id=p["id"], title=p["title"], price=p["price"],
+            url=p["url"], source=p.get("source", "fallback"),
+            category=category,
+            image_url=p.get("image_url"),
+            rating=p.get("rating"),
+            reviews_count=p.get("reviews_count"),
+            delivery=p.get("delivery"),
+            old_price=p.get("old_price"),
+        )
+        for p in raw
+    ]
     if not products:
         return []
 
     query_words = set(query.lower().split())
-    budget = extract_budget(query)
+    budget = budget_cap if budget_cap is not None else extract_budget(query)
     prices = [p.price for p in products]
     median_price = statistics.median(prices)
 
