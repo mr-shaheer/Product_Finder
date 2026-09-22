@@ -12,6 +12,11 @@ def search_products(category: ProductCategory, query: str) -> list[Product]:
             id=p["id"], title=p["title"], price=p["price"],
             url=p["url"], source=p.get("source", "fallback"),
             category=category,
+            image_url=p.get("image_url"),
+            rating=p.get("rating"),
+            reviews_count=p.get("reviews_count"),
+            delivery=p.get("delivery"),
+            old_price=p.get("old_price"),
         )
         for p in raw
     ]
