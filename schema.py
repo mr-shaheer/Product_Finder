@@ -16,6 +16,11 @@ class Product(BaseModel):
      url: str
      source: str
      category: ProductCategory
+     image_url: str | None = None
+     rating: float | None = None
+     reviews_count: int | None = None
+     delivery: str | None = None
+     old_price: float | None = None
 
 class ScoredProduct(BaseModel):
      product: Product
