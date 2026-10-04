@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #fafaf8;
+  --color-surface: #f3f2ee;
+  --color-surface-hover: #ecebe5;
+  --color-border: #e2e0d8;
+  --color-border-strong: #c9c7bc;
+  --color-ink: #17171a;
+  --color-ink-muted: #6c6a63;
+  --color-ink-faint: #9a988f;
+
+  --color-accent: #3346e0;
+  --color-accent-ink: #ffffff;
+  --color-accent-soft: #ecefff;
+  --color-accent-soft-border: #d3d9ff;
+
+  --color-positive: #1c8a53;
+  --color-positive-soft: #e9f6ee;
+  --color-negative: #c23a2e;
+  --color-negative-soft: #fbebe9;
+
+  --shadow-card: 0 1px 2px rgba(23, 23, 26, 0.04), 0 8px 24px -12px rgba(23, 23, 26, 0.10);
+  --shadow-float: 0 12px 40px -8px rgba(23, 23, 26, 0.18), 0 2px 8px rgba(23, 23, 26, 0.06);
+}
+
+html {
+  background: var(--color-bg);
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Global hand cursor for anything clickable, app-wide */
+a,
+button,
+select,
+summary,
+[role="button"],
+[role="link"],
+[role="tab"],
+[role="menuitem"],
+[role="option"],
+[role="checkbox"],
+[role="radio"],
+[role="switch"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="checkbox"],
+input[type="radio"],
+label[for],
+.cursor-pointer,
+[onclick] {
+  cursor: pointer;
+}
+
+/* Disabled elements should never look clickable */
+a[aria-disabled="true"],
+button:disabled,
+select:disabled,
+input:disabled,
+[role="button"][aria-disabled="true"],
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+textarea:focus-visible {
+  outline: none;
+}
+
+/* Scrollbar: subtle, not the browser default chrome */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.35s ease-out both;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface-hover) 37%, var(--color-surface) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-dot, .animate-fade-up, .skeleton {
+    animation: none !important;
+  }
+}
