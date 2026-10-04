@@ -3,6 +3,7 @@ from models import Frontier_Model
 from tools.search import search_products
 from tools.scoring import normalize_and_score_products
 from agents.agent import StopAtTools
+from guardrails import block_jailbreak
 
 recommender = Agent(
      name = "recommender",
@@ -31,4 +32,5 @@ recommender = Agent(
      model = Frontier_Model,
      tools = [search_products, normalize_and_score_products],
      tool_use_behavior=StopAtTools(stop_at_tool_names=["normalize_and_score_products"]),
+     input_guardrails = [block_jailbreak]
 )
