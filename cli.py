@@ -1,6 +1,7 @@
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
+import os
 from api.agent_runtime import stream_search, reset_session
 from schema import ScoredProduct
 
@@ -111,6 +112,8 @@ async def main():
             async for event in stream_search(
                 SESSION_ID,
                 user_input,
+                os.environ.get("GEMINI_API_KEY", ""),
+                os.environ.get("SERPAPI_KEY"),
             ):
                 event_type = event.get("type")
 
