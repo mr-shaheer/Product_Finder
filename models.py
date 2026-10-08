@@ -1,20 +1,14 @@
-import os
-from agents import OpenAIChatCompletionsModel, AsyncOpenAI
-from dotenv import load_dotenv, find_dotenv
+from agents import AsyncOpenAI, OpenAIChatCompletionsModel
 
-load_dotenv(find_dotenv())
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
-external_client = AsyncOpenAI(
-     api_key = os.getenv("GEMINI_API_KEY"),
-     base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
-)
+DEFAULT_MODEL_NAME = "gemini-2.5-flash"
+FRONTIER_MODEL_NAME = "gemini-3.5-flash"
 
-Default_Model = OpenAIChatCompletionsModel(
-     model = "gemini-2.5-flash",
-     openai_client = external_client
-)
 
-Frontier_Model = OpenAIChatCompletionsModel(
-     model = "gemini-3.5-flash",
-     openai_client = external_client
-)
+def build_models(api_key: str) -> tuple[OpenAIChatCompletionsModel, OpenAIChatCompletionsModel]:
+
+    client = AsyncOpenAI(api_key=api_key, base_url=GEMINI_BASE_URL)
+    default_model = OpenAIChatCompletionsModel(model=DEFAULT_MODEL_NAME, openai_client=client)
+    frontier_model = OpenAIChatCompletionsModel(model=FRONTIER_MODEL_NAME, openai_client=client)
+    return default_model, frontier_model
