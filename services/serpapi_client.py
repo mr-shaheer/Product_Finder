@@ -1,16 +1,13 @@
 from typing import Any
 import httpx
-import os
+from services.request_context import serpapi_key_var
 
 
 def serpapi_search(query: str, category: str) -> list[dict[str, Any]]:
-    api_key = os.environ.get("SERPAPI_KEY")
+    api_key = serpapi_key_var.get()
     if not api_key:
         return []
 
-    # Separate connect vs read timeout, and retry once on a timeout before
-    # giving up and falling back to placeholder data — a single slow response
-    # shouldn't throw away the whole live search.
     timeout = httpx.Timeout(connect=5.0, read=25.0, write=10.0, pool=5.0)
     last_error: Exception | None = None
 
@@ -38,8 +35,6 @@ def serpapi_search(query: str, category: str) -> list[dict[str, Any]]:
 
     shopping_results = data.get("shopping_results", [])
     if not shopping_results:
-        # Google didn't return a shopping panel for this query —
-        # log the keys actually present so you can see what came back instead.
         print(f"[serpapi_search] no shopping_results. Top-level keys: {list(data.keys())}")
         return []
 
@@ -48,7 +43,6 @@ def serpapi_search(query: str, category: str) -> list[dict[str, Any]]:
         try:
             price = item.get("extracted_price")
             if price is None:
-                # fallback: try to parse the raw price string if extracted_price is missing
                 raw_price = item.get("price", "")
                 price = float(
                     raw_price.replace("$", "").replace(",", "").split(" ")[0] or 0
