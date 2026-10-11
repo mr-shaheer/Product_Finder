@@ -1,5 +1,7 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ArrowRight, Loader2, X } from "lucide-react";
+
+const MAX_TEXTAREA_HEIGHT = 240;
 
 interface SearchBarProps {
   value: string;
@@ -21,6 +23,25 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Grow/shrink the textarea to fit its content instead of scrolling.
+  const resizeTextarea = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    const next = Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT);
+    el.style.height = `${next}px`;
+    el.style.overflowY = el.scrollHeight > MAX_TEXTAREA_HEIGHT ? "auto" : "hidden";
+  }, []);
+
+  useLayoutEffect(() => {
+    resizeTextarea();
+  }, [value, resizeTextarea]);
+
+  useEffect(() => {
+    window.addEventListener("resize", resizeTextarea);
+    return () => window.removeEventListener("resize", resizeTextarea);
+  }, [resizeTextarea]);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!value.trim() || loading) return;
@@ -37,7 +58,7 @@ export function SearchBar({
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div
-        className={`flex items-center gap-2 rounded-[28px] border bg-white px-4 py-3 shadow-[var(--shadow-float)] transition-colors sm:px-5 sm:py-3.5 ${
+        className={`flex items-end gap-2 rounded-[28px] border bg-white px-4 py-3 shadow-[var(--shadow-float)] transition-colors sm:px-5 sm:py-3.5 ${
           focused ? "border-[var(--color-accent)]" : "border-[var(--color-border)]"
         }`}
       >
@@ -53,7 +74,7 @@ export function SearchBar({
           autoFocus={autoFocus}
           disabled={loading}
           aria-label="Describe the product you're looking for"
-          className="max-h-32 min-h-[28px] flex-1 resize-none bg-transparent text-[15px] leading-relaxed text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-faint)] disabled:opacity-60 sm:text-base"
+          className="min-h-[40px] flex-1 resize-none overflow-hidden py-[6px] bg-transparent text-[15px] leading-relaxed text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-faint)] disabled:opacity-60 sm:text-base"
         />
 
         <div className="flex shrink-0 items-center gap-1.5">
