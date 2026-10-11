@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { History, RotateCcw, Search } from "lucide-react";
 import { useSearch } from "../context/SearchContext";
@@ -8,12 +8,32 @@ export function Header() {
   const navigate = useNavigate();
   const { restoreSearch, startNewSearch } = useSearch();
   const [historyOpen, setHistoryOpen] = useState(false);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!historyOpen) return;
+  
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        historyRef.current &&
+        !historyRef.current.contains(event.target as Node)
+      ) {
+        setHistoryOpen(false);
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [historyOpen]);
 
   const recent = getSearchHistory();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 h-16 border-b border-[var(--color-border)] bg-[var(--color-bg)]/90 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-6xl items-center gap-4 px-4 sm:px-6">
         <button
           onClick={() => navigate("/")}
           className="flex shrink-0 items-center gap-2 rounded-md text-[15px] font-medium tracking-tight text-[var(--color-ink)]"
@@ -26,7 +46,7 @@ export function Header() {
         </button>
 
         <div className="ml-auto flex items-center gap-1">
-          <div className="relative">
+        <div ref={historyRef} className="relative">
             <button
               onClick={() => setHistoryOpen((v) => !v)}
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
@@ -37,11 +57,7 @@ export function Header() {
             </button>
             {historyOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setHistoryOpen(false)}
-                  aria-hidden="true"
-                />
+                
                 <div className="absolute right-0 top-11 z-20 w-72 rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-float)]">
                   <div className="flex items-center justify-between px-2 py-1.5">
                     <span className="text-xs font-medium text-[var(--color-ink-muted)]">
