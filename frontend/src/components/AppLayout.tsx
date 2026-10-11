@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { SearchBar } from "./SearchBar";
+import { ApiKeyModal } from "./ApiKeyModel";
 import { useSearch } from "../context/SearchContext";
 
 export function AppLayout() {
@@ -19,7 +20,7 @@ export function AppLayout() {
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="flex-1 pb-32 sm:pb-36">
+      <main className={`flex-1 ${isHome ? "" : "pb-32 sm:pb-36"}`}>
         <Outlet />
       </main>
 
@@ -36,6 +37,8 @@ export function AppLayout() {
           </div>
         </div>
       )}
+
+      <ApiKeyModal />
     </div>
   );
 }
