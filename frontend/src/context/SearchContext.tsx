@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { searchProducts, resetSession as apiResetSession } from "../api/productFinderApi";
+import { useApiKeys } from "./ApiKeyContext";
 import { getSessionId, resetSessionId } from "../lib/session";
 import { saveSearchHistory, type SearchHistoryItem } from "../lib/history";
 import type { ClassifiedQuery, ScoredProduct, SearchStreamEvent } from "../types/product";
@@ -30,12 +31,18 @@ interface SearchState {
   products: ScoredProduct[];
   message: string | null;
   handedOff: boolean;
+  usedFallback: boolean;
   errorMessage: string | null;
   compareIds: string[];
 }
 
+interface RunSearchOptions {
+  navigateOnResult?: boolean;
+  isClarifyReply?: boolean;
+}
+
 interface SearchContextValue extends SearchState {
-  runSearch: (query: string, opts?: { navigateOnResult?: boolean }) => Promise<void>;
+  runSearch: (query: string, opts?: RunSearchOptions) => Promise<void>;
   restoreSearch: (search: SearchHistoryItem) => void;
   startNewSearch: () => void;
   toggleCompare: (id: string) => void;
@@ -54,6 +61,7 @@ const initialState = (): SearchState => ({
   products: [],
   message: null,
   handedOff: false,
+  usedFallback: false,
   errorMessage: null,
   compareIds: [],
 });
@@ -62,11 +70,20 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SearchState>(initialState);
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
+  const { keys, openKeyModal } = useApiKeys();
 
   const runSearch = useCallback(
-    async (query: string, opts?: { navigateOnResult?: boolean }) => {
+    async (query: string, opts?: RunSearchOptions) => {
       const trimmed = query.trim();
       if (!trimmed) return;
+
+      if (!keys.gemini) {
+        openKeyModal();
+        return;
+      }
+
+      const fullQuery =
+        opts?.isClarifyReply && state.query ? `${state.query} ${trimmed}` : trimmed;
 
       abortRef.current?.abort();
       const controller = new AbortController();
@@ -75,10 +92,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       setState((prev) => ({
         ...prev,
         status: "loading",
-        query: trimmed,
+        query: fullQuery,
         events: [],
         message: null,
         errorMessage: null,
+        usedFallback: false,
       }));
 
       if (opts?.navigateOnResult) {
@@ -88,8 +106,16 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       try {
         await searchProducts(
           state.sessionId,
-          trimmed,
+          fullQuery,
+          keys,
           (event) => {
+            if (
+              event.type === "error" &&
+              (event.code === "missing_key" || event.code === "invalid_key")
+            ) {
+              openKeyModal();
+            }
+
             setState((prev) => {
               const events = [...prev.events, event];
 
@@ -97,14 +123,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                 if (event.handed_off) {
                   saveSearchHistory({
                     id: crypto.randomUUID(),
-                    query: trimmed,
+                    query: fullQuery,
                     timestamp: Date.now(),
                     classification: event.classification,
                     products: event.products,
                     message: event.message,
                   });
                 }
-              
+
                 return {
                   ...prev,
                   events,
@@ -113,6 +139,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
                   products: event.products,
                   message: event.message,
                   handedOff: event.handed_off,
+                  usedFallback: event.used_fallback,
                 };
               }
 
@@ -141,13 +168,13 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         }));
       }
     },
-    [state.sessionId, navigate]
+    [state.sessionId, state.query, keys, openKeyModal, navigate]
   );
 
   const restoreSearch = useCallback(
     (search: SearchHistoryItem) => {
       abortRef.current?.abort();
-  
+
       setState((prev) => ({
         ...prev,
         status: "done",
@@ -157,10 +184,11 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         products: search.products,
         message: search.message,
         handedOff: true,
+        usedFallback: false,
         errorMessage: null,
         compareIds: [],
       }));
-  
+
       navigate("/results");
     },
     [navigate]
