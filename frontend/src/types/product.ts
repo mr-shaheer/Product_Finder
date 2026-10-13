@@ -1,5 +1,3 @@
-// Mirrors productfinder/schema.py exactly.
-
 export type ProductCategory =
   | "electronics"
   | "fashion_apparel"
@@ -36,8 +34,6 @@ export interface ClassifiedQuery {
   reasoning: string;
 }
 
-// ---- API event stream payloads (api/agent_runtime.py) ----
-
 export type SearchStreamEvent =
   | { type: "handoff"; agent: string }
   | { type: "tool_called"; tool: string | null }
@@ -52,10 +48,11 @@ export type SearchStreamEvent =
       classification: ClassifiedQuery | null;
       products_found: number;
       products: ScoredProduct[];
+      used_fallback: boolean;
       message: string;
     }
   | { type: "blocked"; message: string }
-  | { type: "error"; message: string };
+  | { type: "error"; message: string; code?: string };
 
 export interface SearchOutcome {
   query: string;
