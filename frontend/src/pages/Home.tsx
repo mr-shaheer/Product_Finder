@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { KeyRound } from "lucide-react";
 import { SearchBar } from "../components/SearchBar";
 import { SearchSuggestions } from "../components/SearchSuggestions";
 import { useSearch } from "../context/SearchContext";
+import { useApiKeys } from "../context/ApiKeyContext";
 
 export default function Home() {
   const { runSearch, status } = useSearch();
+  const { hasGeminiKey, openKeyModal } = useApiKeys();
   const [value, setValue] = useState("");
 
   function handleSubmit(q: string) {
@@ -13,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl flex-col px-4 sm:px-6">
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 pt-16 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-ink-faint)]">
           Product Finder
         </p>
@@ -26,7 +29,16 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center gap-4 pb-14 pt-6 sm:pb-20">
+      <div className="flex flex-col items-center gap-8 pb-8 pt-6 sm:pb-12">
+        {!hasGeminiKey && (
+          <button
+            onClick={openKeyModal}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm font-medium text-[var(--color-accent)] hover:border-[var(--color-accent)]"
+          >
+            <KeyRound className="h-4 w-4" />
+            Add your API key to get started
+          </button>
+        )}
         <SearchBar
           value={value}
           onChange={setValue}
