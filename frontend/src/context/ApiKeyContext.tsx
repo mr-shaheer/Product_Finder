@@ -6,7 +6,7 @@ import {
      useState,
      type ReactNode,
    } from "react";
-   import { loadKeys, persistKeys, type ApiKeys } from "../lib/apikeys";
+   import { loadKeys, persistKeys, type ApiKeys } from "../lib/apiKeys";
    
    interface ApiKeyContextValue {
      keys: ApiKeys;
