@@ -23,6 +23,7 @@ function setOrRemove(storageKey: string, value: string) {
 }
 
 export function persistKeys(keys: ApiKeys): void {
+  
   try {
     setOrRemove(GEMINI_STORAGE_KEY, keys.gemini);
     setOrRemove(SERPAPI_STORAGE_KEY, keys.serpapi);
