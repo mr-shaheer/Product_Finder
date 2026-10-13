@@ -44,6 +44,7 @@ export default function Results() {
     events,
     products,
     message,
+    usedFallback,
     errorMessage,
     compareIds,
     toggleCompare,
@@ -100,12 +101,19 @@ export default function Results() {
         </div>
       )}
 
+      {status === "done" && usedFallback && products.length > 0 && (
+              <div className="mb-6 rounded-xl border border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] px-4 py-3 text-sm text-[var(--color-ink)]">
+                These are <strong>sample results</strong>, not live products. Add a valid SerpApi
+                key (key icon, top right) to see real listings.
+              </div>
+            )}
+
       {status === "clarifying" && message && (
         <div className="flex justify-center py-6">
           <ClarifyCard
             message={message}
             loading={false}
-            onReply={(reply) => void runSearch(reply)}
+            onReply={(reply) => void runSearch(reply, { isClarifyReply: true })}
           />
         </div>
       )}
