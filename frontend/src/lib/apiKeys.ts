@@ -27,5 +27,6 @@ export function persistKeys(keys: ApiKeys): void {
     setOrRemove(GEMINI_STORAGE_KEY, keys.gemini);
     setOrRemove(SERPAPI_STORAGE_KEY, keys.serpapi);
   } catch {
+    // Storage can be blocked (private mode). Keys then live only in memory.
   }
 }
