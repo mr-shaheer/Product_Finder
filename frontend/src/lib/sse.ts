@@ -2,11 +2,12 @@ export async function streamJsonEvents<T>(
   url: string,
   body: unknown,
   onEvent: (event: T) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  extraHeaders?: Record<string, string>
 ): Promise<void> {
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...extraHeaders },
     body: JSON.stringify(body),
     signal,
   });
@@ -35,7 +36,6 @@ export async function streamJsonEvents<T>(
       try {
         onEvent(JSON.parse(jsonText) as T);
       } catch {
-        // Skip malformed frames rather than breaking the whole stream.
       }
     }
   }
