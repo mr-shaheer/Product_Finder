@@ -1,5 +1,5 @@
 import { streamJsonEvents } from "../lib/sse";
-import type { ApiKeys } from "../lib/apikeys";
+import type { ApiKeys } from "../lib/apiKeys";
 import type { SearchStreamEvent } from "../types/product";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
