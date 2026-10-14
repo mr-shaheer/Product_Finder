@@ -2,8 +2,8 @@ from agents import AsyncOpenAI, OpenAIChatCompletionsModel
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
-DEFAULT_MODEL_NAME = "gemini-2.5-flash"
-FRONTIER_MODEL_NAME = "gemini-3.5-flash"
+DEFAULT_MODEL_NAME = "gemini-3.0-flash"
+FRONTIER_MODEL_NAME = "gemini-2.5-flash"
 
 
 def build_models(api_key: str) -> tuple[OpenAIChatCompletionsModel, OpenAIChatCompletionsModel]:
