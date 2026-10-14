@@ -2,7 +2,7 @@ from agents import AsyncOpenAI, OpenAIChatCompletionsModel
 
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
-DEFAULT_MODEL_NAME = "gemini-3.0-flash"
+DEFAULT_MODEL_NAME = "gemini-2.5-flash"
 FRONTIER_MODEL_NAME = "gemini-2.5-flash"
 
 
