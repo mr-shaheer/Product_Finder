@@ -17,7 +17,7 @@ load_dotenv(find_dotenv())
 
 app = FastAPI(title="Product Finder API", version="0.2.0")
 
-_origins = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173").split(",")
+_origins = os.environ.get("FRONTEND_ORIGIN", "https://productfinder-ai.vercel.app").split(",")
 
 app.add_middleware(
     CORSMiddleware,
