@@ -224,6 +224,5 @@ function ApiKeyModalContent() {
 
 export function ApiKeyModal() {
   const { modalOpen } = useApiKeys();
-  // Mounted only while open, so the inputs reset to the saved keys each time.
   return modalOpen ? <ApiKeyModalContent /> : null;
 }
