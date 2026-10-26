@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { History, KeyRound, RotateCcw, Search } from "lucide-react";
+import { History, KeyRound, Moon, RotateCcw, Search, Sun } from "lucide-react";
 import { useSearch } from "../context/SearchContext";
 import { useApiKeys } from "../context/ApiKeyContext";
 import { getSearchHistory, clearSearchHistory } from "../lib/history";
@@ -11,6 +11,25 @@ export function Header() {
   const { hasGeminiKey, openKeyModal } = useApiKeys();
   const [historyOpen, setHistoryOpen] = useState(false);
   const historyRef = useRef<HTMLDivElement>(null);
+
+  // Theme: the initial class is already set on <html> by the script in index.html
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    document.documentElement.classList.contains("dark")
+  );
+
+  function toggleTheme() {
+    const next = !isDark;
+    const root = document.documentElement;
+    root.classList.add("theme-transition");
+    root.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("theme", next ? "dark" : "light");
+    } catch {
+      // storage unavailable, theme just won't persist
+    }
+    setIsDark(next);
+    window.setTimeout(() => root.classList.remove("theme-transition"), 350);
+  }
 
   useEffect(() => {
     if (!historyOpen) return;
@@ -114,6 +133,28 @@ export function Header() {
             {!hasGeminiKey && (
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)]" />
             )}
+          </button>
+
+          {/* Theme toggle: sliding switch, sits left of "New search" */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isDark}
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={toggleTheme}
+            className="relative mx-1 flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-0.5 transition-colors duration-300"
+          >
+            <span
+              className={`flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-ink)] text-white shadow-sm transition-transform duration-300 ease-in-out ${
+                isDark ? "translate-x-[26px]" : "translate-x-0"
+              }`}
+            >
+              {isDark ? (
+                <Moon className="h-3.5 w-3.5" />
+              ) : (
+                <Sun className="h-3.5 w-3.5" />
+              )}
+            </span>
           </button>
 
           <button
