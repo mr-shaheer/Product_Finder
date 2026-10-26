@@ -21,6 +21,7 @@
   --color-positive-soft: #e9f6ee;
   --color-negative: #c23a2e;
   --color-negative-soft: #fbebe9;
+  --color-white: #ffffff;
 
   --shadow-card: 0 1px 2px rgba(23, 23, 26, 0.04), 0 8px 24px -12px rgba(23, 23, 26, 0.10);
   --shadow-float: 0 12px 40px -8px rgba(23, 23, 26, 0.18), 0 2px 8px rgba(23, 23, 26, 0.06);
@@ -29,6 +30,67 @@
 html {
   background: var(--color-bg);
   color-scheme: light;
+}
+
+
+/* ---------- Dark theme ---------- */
+html.dark {
+  color-scheme: dark;
+
+  --color-bg: #111113;
+  --color-white: #1a1a1e; /* every bg-white card/input/modal becomes this; text-white becomes dark on light ink buttons */
+  --color-surface: #232328;
+  --color-surface-hover: #2d2d33;
+  --color-border: #2e2e35;
+  --color-border-strong: #4a4a53;
+  --color-ink: #f2f1ec;
+  --color-ink-muted: #a3a199;
+  --color-ink-faint: #77756e;
+
+  --color-accent: #7c8cff;
+  --color-accent-ink: #111113;
+  --color-accent-soft: #20253f;
+  --color-accent-soft-border: #333b6b;
+
+  --color-positive: #4cc38a;
+  --color-positive-soft: #14281e;
+  --color-negative: #ff7b6e;
+  --color-negative-soft: #301a18;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-float: 0 12px 40px -8px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* buttons that use hover:bg-black (ink is light in dark mode) */
+html.dark .hover\:bg-black:hover:not(:disabled) {
+  background-color: #ffffff;
+}
+
+/* text colour, cursor (caret) colour and placeholder colour follow the theme */
+@layer base {
+  input,
+  textarea {
+    color: var(--color-ink);
+    caret-color: var(--color-ink);
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-ink-faint);
+    opacity: 1;
+  }
+}
+
+/* smooth colour fade while switching (class is added by the toggle for 350ms) */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    fill 0.3s ease,
+    box-shadow 0.3s ease !important;
 }
 
 body {
