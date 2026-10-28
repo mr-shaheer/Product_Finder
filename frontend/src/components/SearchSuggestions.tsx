@@ -1,7 +1,7 @@
 const EXAMPLES = [
   "Best smartphone under $500",
   "Wireless headphones under $100",
-  "Durable Sneakers for everyday walking",
+  "Elegant watch for daily wear",
   "Best Laptop for gaming",
 ];
 
