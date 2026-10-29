@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /results
+Disallow: /product/
+Disallow: /compare
+
+Sitemap: https://productfinder-ai.vercel.app/sitemap.xml
