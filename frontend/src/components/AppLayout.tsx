@@ -18,6 +18,13 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {!isHome && (
+        <>
+          <title>Product Finder – Results</title>
+          <meta name="robots" content="noindex, follow" />
+        </>
+      )}
+
       <Header />
 
       <main className={`flex-1 ${isHome ? "" : "pb-32 sm:pb-36"}`}>
