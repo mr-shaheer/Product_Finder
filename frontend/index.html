@@ -2,9 +2,51 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Product Finder — describe what you want, let AI search and rank real products, compare them, and buy with confidence." />
+
+    <title>Product Finder – AI Shopping Assistant to Search, Compare & Buy</title>
+    <meta
+      name="description"
+      content="Describe what you want and Product Finder's AI searches real products, ranks them with a transparent match score, and lets you compare prices and ratings side by side."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://productfinder-ai.vercel.app/" />
+    <meta name="theme-color" content="#fafaf8" />
+
+    <!-- Open Graph / social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Product Finder" />
+    <meta property="og:title" content="Product Finder – AI Shopping Assistant" />
+    <meta
+      property="og:description"
+      content="Describe what you want. AI searches real products, ranks them, and helps you compare and choose with confidence."
+    />
+    <meta property="og:url" content="https://productfinder-ai.vercel.app/" />
+    <meta property="og:image" content="https://productfinder-ai.vercel.app/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Product Finder – AI Shopping Assistant" />
+    <meta
+      name="twitter:description"
+      content="Describe what you want. AI searches real products, ranks them, and helps you compare."
+    />
+    <meta name="twitter:image" content="https://productfinder-ai.vercel.app/og-image.png" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Product Finder",
+        "url": "https://productfinder-ai.vercel.app/",
+        "description": "AI shopping assistant that searches real products, ranks them with an explainable match score, and compares them side by side.",
+        "applicationCategory": "ShoppingApplication",
+        "operatingSystem": "Any (web browser)",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <script>
       (function () {
         try {
@@ -17,10 +59,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
-    <title>Product Finder</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Product Finder – AI Shopping Assistant</h1>
+      <p>
+        Describe what you want to buy and Product Finder's AI will search real products,
+        rank them with a transparent match score, and let you compare them side by side.
+        Please enable JavaScript to use the app.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
