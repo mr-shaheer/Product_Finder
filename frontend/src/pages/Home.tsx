@@ -41,7 +41,7 @@ const FAQS = [
 
 export default function Home() {
   const { runSearch, status } = useSearch();
-  const { hasLlmKey, openKeyModal } = useApiKeys();
+  const { hasGeminiKey, openKeyModal } = useApiKeys();
   const [value, setValue] = useState("");
 
   function handleSubmit(q: string) {
@@ -72,7 +72,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col items-center gap-8 pb-8 pt-6 sm:pb-12">
-          {!hasLlmKey && (
+          {!hasGeminiKey && (
             <button
               onClick={openKeyModal}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--color-accent-soft-border)] bg-[var(--color-accent-soft)] px-4 py-2 text-sm font-medium text-[var(--color-accent)] hover:border-[var(--color-accent)]"
