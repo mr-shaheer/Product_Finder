@@ -8,7 +8,7 @@ import { getSearchHistory, clearSearchHistory } from "../lib/history";
 export function Header() {
   const navigate = useNavigate();
   const { restoreSearch, startNewSearch } = useSearch();
-  const { hasGeminiKey, openKeyModal } = useApiKeys();
+  const { hasLlmKey, activeProvider, activeModel, openKeyModal } = useApiKeys();
   const [historyOpen, setHistoryOpen] = useState(false);
   const historyRef = useRef<HTMLDivElement>(null);
 
@@ -126,11 +126,11 @@ export function Header() {
           <button
             onClick={openKeyModal}
             className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
-            aria-label={hasGeminiKey ? "Change API keys" : "Add API keys"}
-            title={hasGeminiKey ? "Change API keys" : "Add API keys"}
+            aria-label={hasLlmKey ? "Change AI model and keys" : "Add AI model and keys"}
+            title={hasLlmKey ? `${activeProvider.label} · ${activeModel || "default model"}` : "Add AI model and keys"}
           >
             <KeyRound className="h-[18px] w-[18px]" />
-            {!hasGeminiKey && (
+            {!hasLlmKey && (
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)]" />
             )}
           </button>
