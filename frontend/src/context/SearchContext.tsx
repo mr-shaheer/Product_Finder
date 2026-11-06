@@ -52,6 +52,15 @@ interface SearchContextValue extends SearchState {
 
 const SearchContext = createContext<SearchContextValue | null>(null);
 
+// Errors that should send the visitor back to the key/model settings.
+const KEY_MODAL_ERROR_CODES = new Set([
+  "missing_key",
+  "invalid_key",
+  "invalid_config",
+  "model_not_found",
+  "unsupported_model",
+]);
+
 const initialState = (): SearchState => ({
   sessionId: getSessionId(),
   status: "idle",
@@ -70,14 +79,14 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SearchState>(initialState);
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
-  const { keys, openKeyModal } = useApiKeys();
+  const { keys, hasLlmKey, openKeyModal } = useApiKeys();
 
   const runSearch = useCallback(
     async (query: string, opts?: RunSearchOptions) => {
       const trimmed = query.trim();
       if (!trimmed) return;
 
-      if (!keys.gemini) {
+      if (!hasLlmKey) {
         openKeyModal();
         return;
       }
@@ -109,10 +118,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
           fullQuery,
           keys,
           (event) => {
-            if (
-              event.type === "error" &&
-              (event.code === "missing_key" || event.code === "invalid_key")
-            ) {
+            if (event.type === "error" && event.code && KEY_MODAL_ERROR_CODES.has(event.code)) {
               openKeyModal();
             }
 
@@ -168,7 +174,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         }));
       }
     },
-    [state.sessionId, state.query, keys, openKeyModal, navigate]
+    [state.sessionId, state.query, keys, hasLlmKey, openKeyModal, navigate]
   );
 
   const restoreSearch = useCallback(
