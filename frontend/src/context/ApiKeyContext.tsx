@@ -6,15 +6,19 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { loadKeys, persistKeys, type ApiKeys } from "../lib/apiKeys";
+import { activeLlmKey, loadKeys, persistKeys, type ApiKeys } from "../lib/apiKeys";
+import { getProvider, type ProviderInfo } from "../lib/providers";
 
 interface ApiKeyContextValue {
   keys: ApiKeys;
-  hasGeminiKey: boolean;
+  hasLlmKey: boolean;
+  activeProvider: ProviderInfo;
+  activeModel: string;
   modalOpen: boolean;
   openKeyModal: () => void;
   closeKeyModal: () => void;
   saveKeys: (keys: ApiKeys) => void;
+  saveModel: (model: string) => void;
 }
 
 const ApiKeyContext = createContext<ApiKeyContextValue | null>(null);
@@ -27,23 +31,46 @@ export function ApiKeyProvider({ children }: { children: ReactNode }) {
   const closeKeyModal = useCallback(() => setModalOpen(false), []);
 
   const saveKeys = useCallback((next: ApiKeys) => {
-    const cleaned = { gemini: next.gemini.trim(), serpapi: next.serpapi.trim() };
+    const llmKeys = Object.fromEntries(
+      Object.entries(next.llmKeys)
+        .map(([id, value]) => [id, (value ?? "").trim()])
+        .filter(([, value]) => value)
+    ) as ApiKeys["llmKeys"];
+
+    const cleaned: ApiKeys = {
+      provider: next.provider,
+      model: next.model.trim(),
+      baseUrl: next.baseUrl.trim(),
+      llmKeys,
+      serpapi: next.serpapi.trim(),
+    };
     persistKeys(cleaned);
     setKeys(cleaned);
     setModalOpen(false);
   }, []);
 
-  const value = useMemo<ApiKeyContextValue>(
-    () => ({
+  const saveModel = useCallback((model: string) => {
+    setKeys((prev) => {
+      const next = { ...prev, model: model.trim() };
+      persistKeys(next);
+      return next;
+    });
+  }, []);
+
+  const value = useMemo<ApiKeyContextValue>(() => {
+    const activeProvider = getProvider(keys.provider);
+    return {
       keys,
-      hasGeminiKey: keys.gemini.length > 0,
+      hasLlmKey: activeLlmKey(keys).length > 0,
+      activeProvider,
+      activeModel: keys.model || activeProvider.defaultModel,
       modalOpen,
       openKeyModal,
       closeKeyModal,
       saveKeys,
-    }),
-    [keys, modalOpen, openKeyModal, closeKeyModal, saveKeys]
-  );
+      saveModel,
+    };
+  }, [keys, modalOpen, openKeyModal, closeKeyModal, saveKeys, saveModel]);
 
   return <ApiKeyContext.Provider value={value}>{children}</ApiKeyContext.Provider>;
 }
