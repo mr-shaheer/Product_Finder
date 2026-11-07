@@ -1,5 +1,5 @@
 import { streamJsonEvents } from "../lib/sse";
-import type { ApiKeys } from "../lib/apiKeys";
+import { activeLlmKey, type ApiKeys } from "../lib/apiKeys";
 import type { SearchStreamEvent } from "../types/product";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -19,14 +19,21 @@ export interface KeyCheck {
 }
 
 export interface ValidateResponse {
-  gemini: KeyCheck | null;
+  llm: KeyCheck | null;
   serpapi: KeyCheck | null;
 }
 
 /** The visitor's own keys travel in headers, never in the URL or body. */
 function keyHeaders(keys: ApiKeys): Record<string, string> {
   const headers: Record<string, string> = {};
-  if (keys.gemini) headers["X-Gemini-Key"] = keys.gemini;
+  const llmKey = activeLlmKey(keys);
+
+  if (llmKey) {
+    headers["X-LLM-Provider"] = keys.provider;
+    headers["X-LLM-Key"] = llmKey;
+    if (keys.model) headers["X-LLM-Model"] = keys.model;
+    if (keys.provider === "custom" && keys.baseUrl) headers["X-LLM-Base-Url"] = keys.baseUrl;
+  }
   if (keys.serpapi) headers["X-Serpapi-Key"] = keys.serpapi;
   return headers;
 }
