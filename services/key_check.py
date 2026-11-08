@@ -1,35 +1,40 @@
 import httpx
-from openai import (
-    APIConnectionError,
-    APIStatusError,
-    AsyncOpenAI,
-    AuthenticationError,
-    BadRequestError,
-    PermissionDeniedError,
-    RateLimitError,
-)
+import litellm
 
-from models import GEMINI_BASE_URL
+from services.llm_config import LLMConfig
 
 
-async def check_gemini_key(api_key: str) -> dict:
-    """Cheap check: listing models does not use up your chat quota."""
-    client = AsyncOpenAI(
-        api_key=api_key, base_url=GEMINI_BASE_URL, timeout=10.0, max_retries=0
-    )
+async def check_llm_key(config: LLMConfig) -> dict:
+    """
+    Provider-agnostic check: a 1-few-token completion. (LiteLLM has no uniform
+    'list models' call, so this is the portable way. Costs a negligible amount.)
+    """
+    label = config.provider_label
     try:
-        await client.models.list()
-        return {"valid": True, "message": "Gemini key works."}
-    except (AuthenticationError, PermissionDeniedError, BadRequestError):
-        return {"valid": False, "message": "Gemini rejected this key. Check that you copied it fully."}
-    except RateLimitError:
-        return {"valid": True, "message": "Key accepted (Gemini is rate-limiting right now)."}
-    except APIConnectionError:
-        return {"valid": False, "message": "Could not reach Gemini. Try again in a moment."}
-    except APIStatusError as e:
-        return {"valid": False, "message": f"Could not verify the key (Gemini returned {e.status_code})."}
-    finally:
-        await client.close()
+        await litellm.acompletion(
+            model=config.litellm_model,
+            messages=[{"role": "user", "content": "Reply with: ok"}],
+            max_tokens=8,
+            api_key=config.api_key,
+            api_base=config.base_url,
+            timeout=15,
+            num_retries=0,
+        )
+        return {"valid": True, "message": f"{label} key works."}
+    except (litellm.AuthenticationError, litellm.PermissionDeniedError):
+        return {"valid": False, "message": f"{label} rejected this key. Check that you copied it fully."}
+    except litellm.RateLimitError:
+        return {"valid": True, "message": f"Key accepted ({label} is rate-limiting right now)."}
+    except litellm.NotFoundError:
+        return {"valid": False, "message": f"{label} has no model called '{config.model or 'default'}'. Check the model name."}
+    except litellm.BadRequestError as e:
+        if "api key" in str(e).lower():
+            return {"valid": False, "message": f"{label} rejected this key. Check that you copied it fully."}
+        return {"valid": False, "message": f"{label} rejected the request. Check the model name."}
+    except (litellm.APIConnectionError, litellm.Timeout):
+        return {"valid": False, "message": f"Could not reach {label}. Try again in a moment."}
+    except Exception:
+        return {"valid": False, "message": f"Could not verify the key with {label}."}
 
 
 async def check_serpapi_key(api_key: str) -> dict:
