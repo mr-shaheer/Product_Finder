@@ -1,13 +1,13 @@
 [project]
 name = "product-finder"
-version = "0.1.0"
-description = "AI-powered product finder built with the OpenAI Agents SDK."
+version = "0.2.0"
+description = "AI-powered product finder built with the OpenAI Agents SDK and LiteLLM (multi-provider)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.141.1",
     "httpx>=0.28.1",
-    "openai-agents>=0.18.0",
+    "openai-agents[litellm]>=0.18.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.0.0",
     "uvicorn[standard]>=0.30.0",
@@ -23,5 +23,6 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
 [tool.vercel]
 entrypoint = "api.app:app"
