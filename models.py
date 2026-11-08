@@ -1,14 +1,25 @@
-from agents import AsyncOpenAI, OpenAIChatCompletionsModel
+from __future__ import annotations
 
-GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+import litellm
+from agents.extensions.models.litellm_model import LitellmModel
 
-DEFAULT_MODEL_NAME = "gemini-3.6-flash"
-FRONTIER_MODEL_NAME = "gemini-3.6-flash"
+from services.llm_config import LLMConfig
 
 
-def build_models(api_key: str) -> tuple[OpenAIChatCompletionsModel, OpenAIChatCompletionsModel]:
+def build_model(llm: LLMConfig) -> LitellmModel:
+    """One model object, routed through LiteLLM for whichever provider the visitor chose."""
+    return LitellmModel(
+        model=llm.litellm_model,
+        api_key=llm.api_key,
+        base_url=llm.base_url,
+    )
 
-    client = AsyncOpenAI(api_key=api_key, base_url=GEMINI_BASE_URL)
-    default_model = OpenAIChatCompletionsModel(model=DEFAULT_MODEL_NAME, openai_client=client)
-    frontier_model = OpenAIChatCompletionsModel(model=FRONTIER_MODEL_NAME, openai_client=client)
-    return default_model, frontier_model
+
+def known_no_tool_support(llm: LLMConfig) -> bool:
+    """True only when LiteLLM explicitly says the model can't call tools.
+
+    Unknown models (custom endpoints, brand-new releases) return False so we
+    let them try rather than block them.
+    """
+    info = litellm.model_cost.get(llm.litellm_model)
+    return bool(info) and info.get("supports_function_calling") is False
