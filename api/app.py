@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 
@@ -11,20 +12,21 @@ from pydantic import BaseModel, Field
 
 from api.agent_runtime import reset_session, stream_search
 from api.rate_limit import is_rate_limited
-from services.key_check import check_gemini_key, check_serpapi_key
+from services.key_check import check_llm_key, check_serpapi_key
+from services.llm_config import LLMConfigError, resolve_llm_config
 
 load_dotenv(find_dotenv())
 
-app = FastAPI(title="Product Finder API", version="0.2.0")
+app = FastAPI(title="Product Finder API", version="0.3.0")
 
-_origins = os.environ.get("FRONTEND_ORIGIN", "https://productfinder-ai.vercel.app").split(",")
+_origins = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in _origins if o.strip()],
-    allow_credentials=False,  # no cookies are used anymore
+    allow_credentials=False,  # no cookies are used
     allow_methods=["*"],
-    allow_headers=["*"],      # lets the browser send X-Gemini-Key / X-Serpapi-Key
+    allow_headers=["*"],      # lets the browser send X-LLM-* / X-Serpapi-Key
 )
 
 
@@ -41,6 +43,11 @@ def _sse(event: dict) -> str:
     return f"data: {json.dumps(event)}\n\n"
 
 
+async def _resolve(provider, model, key, base_url, legacy_gemini):
+    # DNS lookups for custom base URLs are blocking, so keep them off the event loop.
+    return await asyncio.to_thread(resolve_llm_config, provider, model, key, base_url, legacy_gemini)
+
+
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok"}
@@ -55,29 +62,44 @@ def reset(payload: ResetRequest) -> dict:
 @app.post("/api/keys/validate")
 async def validate_keys(
     request: Request,
-    x_gemini_key: str | None = Header(default=None),
+    x_llm_provider: str | None = Header(default=None),
+    x_llm_model: str | None = Header(default=None),
+    x_llm_key: str | None = Header(default=None),
+    x_llm_base_url: str | None = Header(default=None),
+    x_gemini_key: str | None = Header(default=None),   # legacy
     x_serpapi_key: str | None = Header(default=None),
 ) -> dict:
     """Lets the key box say 'this key works' before the visitor searches."""
     if is_rate_limited(request):
         return {
-            "gemini": {"valid": False, "message": "Too many requests. Wait a minute and try again."},
+            "llm": {"valid": False, "message": "Too many requests. Wait a minute and try again."},
             "serpapi": None,
         }
 
-    gemini = serpapi = None
-    if x_gemini_key and x_gemini_key.strip():
-        gemini = await check_gemini_key(x_gemini_key.strip())
+    llm = serpapi = None
+
+    if (x_llm_key and x_llm_key.strip()) or (x_gemini_key and x_gemini_key.strip()):
+        try:
+            config = await _resolve(x_llm_provider, x_llm_model, x_llm_key, x_llm_base_url, x_gemini_key)
+            llm = await check_llm_key(config)
+        except LLMConfigError as exc:
+            llm = {"valid": False, "message": exc.message}
+
     if x_serpapi_key and x_serpapi_key.strip():
         serpapi = await check_serpapi_key(x_serpapi_key.strip())
-    return {"gemini": gemini, "serpapi": serpapi}
+
+    return {"llm": llm, "serpapi": serpapi}
 
 
 @app.post("/api/search/stream")
 async def search_stream(
     payload: SearchRequest,
     request: Request,
-    x_gemini_key: str | None = Header(default=None),
+    x_llm_provider: str | None = Header(default=None),
+    x_llm_model: str | None = Header(default=None),
+    x_llm_key: str | None = Header(default=None),
+    x_llm_base_url: str | None = Header(default=None),
+    x_gemini_key: str | None = Header(default=None),   # legacy
     x_serpapi_key: str | None = Header(default=None),
 ) -> StreamingResponse:
     """
@@ -94,18 +116,15 @@ async def search_stream(
             })
             return
 
-        gemini_key = (x_gemini_key or "").strip()
-        if not gemini_key:
-            yield _sse({
-                "type": "error",
-                "code": "missing_key",
-                "message": "Add your Gemini API key (key icon, top right) to start searching.",
-            })
+        try:
+            config = await _resolve(x_llm_provider, x_llm_model, x_llm_key, x_llm_base_url, x_gemini_key)
+        except LLMConfigError as exc:
+            yield _sse({"type": "error", "code": exc.code, "message": exc.message})
             return
 
         serpapi_key = (x_serpapi_key or "").strip() or None
 
-        async for event in stream_search(payload.session_id, payload.query, gemini_key, serpapi_key):
+        async for event in stream_search(payload.session_id, payload.query, config, serpapi_key):
             yield _sse(event)
 
     return StreamingResponse(
