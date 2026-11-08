@@ -22,7 +22,7 @@ from openai import (
 from core_agents.orchestrator import ORCHESTRATOR_MAXTURNS, build_orchestrator
 from core_agents.recommender import build_recommender
 from guardrails import build_guardrail_agent
-from models import build_model, known_no_tool_support
+from models import build_models, known_no_tool_support
 from schema import ClassifiedQuery, ScoredProduct
 from services.llm_config import LLMConfig
 from services.request_context import serpapi_key_var
@@ -152,7 +152,7 @@ async def stream_search(
         return
 
     try:
-        model = build_model(llm)
+        model = build_models(llm)
         guardrail_agent = build_guardrail_agent(model)
         recommender = build_recommender(model)
         orchestrator = build_orchestrator(model, recommender)
