@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.app import app
-from providers import litellm_model_name
+from providers import PROVIDERS, get_provider, litellm_model_name
 from services.cache import check_cache, set_cache
 from services.fetch_layer import fetch_products
 from services.llm_config import LLMConfigError, resolve_llm_config
@@ -53,11 +53,25 @@ def test_validate_without_keys_returns_nulls():
 
 # ---- multi-provider config ------------------------------------------------
 
-def test_model_name_prefixing():
-    assert litellm_model_name("gemini", "") == "gemini/gemini-2.5-flash"
-    assert litellm_model_name("openai", "gpt-4o") == "openai/gpt-4o"
-    assert litellm_model_name("openrouter", "openai/gpt-4o-mini") == "openrouter/openai/gpt-4o-mini"
-    # A user can't hop to another LiteLLM backend by typing its prefix:
+@pytest.mark.parametrize("provider_id", [pid for pid in PROVIDERS if pid != "custom"])
+def test_model_name_prefixing_for_every_provider(provider_id):
+    p = get_provider(provider_id)
+    # No model chosen -> that provider's default, with its routing prefix.
+    assert litellm_model_name(provider_id, "") == f"{p.prefix}{p.default_model}"
+    # Any model the user picks (listed or typed in) is used as-is under the prefix.
+    for model in (*p.models, "some-user-typed-model"):
+        expected = model if model.startswith(p.prefix) else f"{p.prefix}{model}"
+        assert litellm_model_name(provider_id, model) == expected
+
+
+def test_user_chosen_model_reaches_llm_config():
+    cfg = resolve_llm_config("openai", "gpt-4o", "k", None)
+    assert cfg.model == "gpt-4o"
+    assert cfg.litellm_model == "openai/gpt-4o"
+
+
+def test_cannot_hop_to_another_litellm_backend():
+    # A user can't use another backend's prefix to reach server-side credentials.
     assert litellm_model_name("openai", "bedrock/foo") == "openai/bedrock/foo"
 
 
