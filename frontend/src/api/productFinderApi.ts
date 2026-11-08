@@ -2,7 +2,7 @@ import { streamJsonEvents } from "../lib/sse";
 import { activeLlmKey, type ApiKeys } from "../lib/apiKeys";
 import type { SearchStreamEvent } from "../types/product";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://product-finder-livid-one.vercel.app";
 
 export class BackendUnavailableError extends Error {
   constructor() {
