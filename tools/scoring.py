@@ -56,7 +56,8 @@ def normalize_and_score_products(
         return []
 
     query_words = set(query.lower().split())
-    budget = budget_cap if budget_cap is not None else extract_budget(query)
+    stated_budget = extract_budget(query)
+    budget = stated_budget
     prices = [p.price for p in products]
     median_price = statistics.median(prices)
 
