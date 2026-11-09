@@ -1,7 +1,20 @@
+import logging
+
 import httpx
 import litellm
 
 from services.llm_config import LLMConfig
+
+logger = logging.getLogger("product_finder")
+
+# Gemini 3.x models can spend time "thinking" before the first token, so a
+# tiny key-check still needs more than the old 15s. Keep the worst case
+# (timeout x attempts) below the Vercel function maxDuration (60s).
+KEY_CHECK_TIMEOUT_SECONDS = 25
+
+
+def _redact(text: str, key: str) -> str:
+    return text.replace(key, "***") if key else text
 
 
 async def check_llm_key(config: LLMConfig) -> dict:
@@ -17,8 +30,8 @@ async def check_llm_key(config: LLMConfig) -> dict:
             max_tokens=8,
             api_key=config.api_key,
             api_base=config.base_url,
-            timeout=15,
-            num_retries=0,
+            timeout=KEY_CHECK_TIMEOUT_SECONDS,
+            num_retries=1,
         )
         return {"valid": True, "message": f"{label} key works."}
     except (litellm.AuthenticationError, litellm.PermissionDeniedError):
@@ -31,9 +44,29 @@ async def check_llm_key(config: LLMConfig) -> dict:
         if "api key" in str(e).lower():
             return {"valid": False, "message": f"{label} rejected this key. Check that you copied it fully."}
         return {"valid": False, "message": f"{label} rejected the request. Check the model name."}
-    except (litellm.APIConnectionError, litellm.Timeout):
+    except (litellm.APIConnectionError, litellm.Timeout) as e:
+        logger.error(
+            "Key check: could not reach %s (%s): %s",
+            label,
+            type(e).__name__,
+            _redact(str(e), config.api_key)[:800],
+        )
         return {"valid": False, "message": f"Could not reach {label}. Try again in a moment."}
-    except Exception:
+    except (litellm.ServiceUnavailableError, litellm.InternalServerError) as e:
+        logger.error(
+            "Key check: %s returned a server error (%s): %s",
+            label,
+            type(e).__name__,
+            _redact(str(e), config.api_key)[:800],
+        )
+        return {"valid": False, "message": f"{label} is temporarily unavailable. Try again in a moment."}
+    except Exception as e:
+        logger.error(
+            "Key check failed for %s (%s): %s",
+            label,
+            type(e).__name__,
+            _redact(str(e), config.api_key)[:800],
+        )
         return {"valid": False, "message": f"Could not verify the key with {label}."}
 
 
