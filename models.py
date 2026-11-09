@@ -5,6 +5,16 @@ from agents.extensions.models.litellm_model import LitellmModel
 
 from services.llm_config import LLMConfig
 
+_acompletion = litellm.acompletion
+
+
+async def _acompletion_without_mcp(*args, **kwargs):
+    kwargs.setdefault("_skip_mcp_handler", True)
+    return await _acompletion(*args, **kwargs)
+
+
+litellm.acompletion = _acompletion_without_mcp  # type: ignore[assignment]
+
 
 def build_model(llm: LLMConfig) -> LitellmModel:
     """One model object, routed through LiteLLM for whichever provider the visitor chose."""
