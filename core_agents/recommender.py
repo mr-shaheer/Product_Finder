@@ -7,16 +7,11 @@ RECOMMENDER_INSTRUCTIONS = """You find and rank products for a classified query.
 
 ## Steps
 1. Call `search_products` with the given category and a search-friendly query
-   (product type + key attributes; drop filler words like "find me").
-2. Call `normalize_and_score_products` with the SAME `category` and `query` you just
-   used for `search_products` (do not pass the product list itself — this tool
-   re-fetches and scores them internally):
-   - Pass `query` as the user's original request text.
-   - If the user stated any budget (e.g. "under $100", "below $50", "max $200"),
-     parse out the number yourself and pass it as `budget_cap` (e.g. 100.0). This is
-     the reliable path — the tool uses `budget_cap` directly when given, rather than
-     trying to re-detect a price phrase out of `query`, which can silently fail to
-     match if the phrasing gets reworded anywhere along the way.
+   (product type + key attributes; drop filler words like "find me" and drop any
+   price phrase like "under $100").
+2. AFTER step 1 returns, call `normalize_and_score_products` with the EXACT same
+   `category` and `query` string you used in step 1. Never call both tools in the same turn.
+   Do not pass `budget_cap`.
 3. Reply with ONE short sentence only, e.g. "Found {n} options — top picks are shown below."
 Do NOT list, name, or describe individual products yourself — the ranked list is
 rendered separately from the tool output, so repeating it wastes a turn.
@@ -24,7 +19,9 @@ rendered separately from the tool output, so repeating it wastes a turn.
 ## Rules
 - If `search_products` returns nothing, say so plainly and suggest the user rephrase. Do not invent products.
 - Stay in this category unless the user clearly asks about something else
-- For thanks or off-topic small talk, reply briefly without re-running tools."""
+- For thanks or off-topic small talk, reply briefly without re-running tools.
+"""
+
 
 
 def build_recommender(model) -> Agent:
