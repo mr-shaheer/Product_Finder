@@ -33,7 +33,6 @@
 - [🔌 API Reference](#-api-reference)
 - [📊 Scoring Algorithm](#-scoring-algorithm)
 - [🛠️ Troubleshooting](#️-troubleshooting)
-- [🗺️ Roadmap](#️-roadmap)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [👤 Author](#-author)
