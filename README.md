@@ -2,7 +2,7 @@
 
 # 🛍️ Product Finder
 
-### A multi-agent AI shopping assistant that understands what you need — and finds it for you.
+### A multi-agent AI shopping assistant that understands what you need - and finds it for you.
 
 *Built on the OpenAI Agents SDK and Gemini, with a FastAPI streaming backend, a React web UI, and a transparent, explainable scoring engine.*
 
