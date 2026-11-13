@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <>
-      <title>Product Finder – AI Shopping Assistant to Search, Compare & Buy</title>
+      <title>Product Finder - AI Shopping Assistant to Search, Compare & Buy</title>
       <meta
         name="description"
         content="Describe what you want and Product Finder's AI searches real products, ranks them with a transparent match score, and lets you compare prices and ratings side by side."
@@ -71,7 +71,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-8 pb-8 pt-6 sm:pb-12">
+        <div className="flex flex-col items-center gap-8 pb-8 pt-6 max-sm:pb-24 sm:pb-12">
           {!hasLlmKey && (
             <button
               onClick={openKeyModal}
