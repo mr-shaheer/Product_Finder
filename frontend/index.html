@@ -5,6 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
 
     <title>Product Finder – AI Shopping Assistant to Search, Compare & Buy</title>
     <meta
@@ -49,11 +50,16 @@
 
     <script>
       (function () {
+        var dark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
         try {
-          if (localStorage.getItem("theme") === "light") {
-            document.documentElement.classList.add("light");
-          }
+          var stored = localStorage.getItem("theme");
+          if (stored) dark = stored === "dark";
         } catch (e) {}
+        document.documentElement.classList.toggle("dark", dark);
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", dark ? "#111113" : "#fafaf8");
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
