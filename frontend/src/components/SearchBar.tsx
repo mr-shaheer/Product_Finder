@@ -74,7 +74,7 @@ export function SearchBar({
           autoFocus={autoFocus}
           disabled={loading}
           aria-label="Describe the product you're looking for"
-          className="min-h-[40px] flex-1 resize-none overflow-hidden py-[6px] bg-transparent text-[15px] leading-relaxed text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-faint)] disabled:opacity-60 sm:text-base"
+          className="min-h-[40px] flex-1 resize-none overflow-hidden bg-transparent py-2 text-[15px] leading-6 text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink-faint)] disabled:opacity-60 sm:text-base"
         />
 
         <div className="flex shrink-0 items-center gap-1.5">
