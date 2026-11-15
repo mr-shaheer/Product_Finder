@@ -27,9 +27,39 @@ export function Header() {
     } catch {
       // storage unavailable, theme just won't persist
     }
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", next ? "#111113" : "#fafaf8");
     setIsDark(next);
     window.setTimeout(() => root.classList.remove("theme-transition"), 350);
   }
+
+  // Until the user picks a theme, follow the phone/OS preference.
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function handleChange(event: MediaQueryListEvent) {
+      let stored: string | null = null;
+      try {
+        stored = localStorage.getItem("theme");
+      } catch {
+        // storage unavailable: keep following the system
+      }
+      if (stored === "light" || stored === "dark") return;
+
+      const root = document.documentElement;
+      root.classList.add("theme-transition");
+      root.classList.toggle("dark", event.matches);
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute("content", event.matches ? "#111113" : "#fafaf8");
+      setIsDark(event.matches);
+      window.setTimeout(() => root.classList.remove("theme-transition"), 350);
+    }
+
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
     if (!historyOpen) return;
