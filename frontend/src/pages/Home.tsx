@@ -2,13 +2,15 @@ import { useState } from "react";
 import { KeyRound } from "lucide-react";
 import { SearchBar } from "../components/SearchBar";
 import { SearchSuggestions } from "../components/SearchSuggestions";
+import { FaqAccordion } from "../components/FaqAccordion";
+import { FAQS, faqJsonLd } from "../data/faqs";
 import { useSearch } from "../context/SearchContext";
 import { useApiKeys } from "../context/ApiKeyContext";
 
 const STEPS = [
   {
     title: "Describe what you want",
-    text: "Type it the way you'd say it: “wireless headphones under $100 with good battery life.” No filters or forms.",
+    text: "Type what you need: “wireless headphones under $100 with good battery life” No filters or forms Needed.",
   },
   {
     title: "AI searches and ranks",
@@ -16,26 +18,7 @@ const STEPS = [
   },
   {
     title: "Compare and decide",
-    text: "See the top recommendations, read why each one matched, and compare products side by side before you buy.",
-  },
-];
-
-const FAQS = [
-  {
-    q: "What is Product Finder?",
-    a: "Product Finder is a free AI shopping assistant. You describe the product you need, and it searches real listings, ranks them with an explainable match score, and helps you compare options.",
-  },
-  {
-    q: "How does the match score work?",
-    a: "Each product is scored on factors such as how well it fits your request, price, customer rating and number of reviews. The score is transparent, so you can see why a product ranks where it does.",
-  },
-  {
-    q: "Does Product Finder sell products?",
-    a: "No. It helps you find and compare products. When you pick one, you are sent to the retailer's own page to buy.",
-  },
-  {
-    q: "Do I need an account?",
-    a: "No account is needed. You add your own API keys, which are used only for your searches and are not stored.",
+    text: "See the top recommendations, read why each one matched, and compare products side by side before you buy from marketplace.",
   },
 ];
 
@@ -66,8 +49,7 @@ export default function Home() {
             Find the right product.
           </h1>
           <p className="max-w-md text-[15px] leading-relaxed text-[var(--color-ink-muted)]">
-            Search across products, compare options, and let AI help you make
-            sense of the results.
+          Smarter product searches start here.
           </p>
         </div>
 
@@ -123,27 +105,21 @@ export default function Home() {
       </section>
 
       <section
-        aria-labelledby="faq"
-        className="mx-auto max-w-2xl px-4 pb-16 sm:px-6"
+        id="faq"
+        aria-labelledby="faq-heading"
+        className="mx-auto max-w-2xl scroll-mt-24 px-4 pb-16 sm:px-6"
       >
         <h2
-          id="faq"
+          id="faq-heading"
           className="mb-6 text-center text-2xl font-medium tracking-tight text-[var(--color-ink)]"
         >
           Frequently asked questions
         </h2>
-        <div className="flex flex-col gap-5">
-          {FAQS.map((f) => (
-            <div key={f.q}>
-              <h3 className="mb-1 text-[15px] font-medium text-[var(--color-ink)]">
-                {f.q}
-              </h3>
-              <p className="text-sm leading-relaxed text-[var(--color-ink-muted)]">
-                {f.a}
-              </p>
-            </div>
-          ))}
-        </div>
+        <FaqAccordion items={FAQS} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
       </section>
     </>
   );
