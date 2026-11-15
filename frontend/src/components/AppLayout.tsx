@@ -20,7 +20,7 @@ export function AppLayout() {
     <div className="flex min-h-screen flex-col">
       {!isHome && (
         <>
-          <title>Product Finder – Results</title>
+          <title>Product Finder</title>
           <meta name="robots" content="noindex, follow" />
         </>
       )}
