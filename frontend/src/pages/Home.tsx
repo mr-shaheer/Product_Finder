@@ -50,7 +50,7 @@ export default function Home() {
 
   return (
     <>
-      <title>Product Finder - AI Shopping Assistant to Search, Compare & Buy</title>
+      <title>Product Finder</title>
       <meta
         name="description"
         content="Describe what you want and Product Finder's AI searches real products, ranks them with a transparent match score, and lets you compare prices and ratings side by side."
