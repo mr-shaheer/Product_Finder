@@ -71,7 +71,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-8 pb-8 pt-6 max-sm:pb-24 sm:pb-12">
+        <div className="flex flex-col items-center gap-8 pb-8 pt-6 max-sm:pb-32 sm:pb-12">
           {!hasLlmKey && (
             <button
               onClick={openKeyModal}
