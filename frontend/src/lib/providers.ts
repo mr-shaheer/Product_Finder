@@ -26,7 +26,7 @@ export const PROVIDERS: ProviderInfo[] = [
     keyPlaceholder: "AIza...",
     keyUrl: "https://aistudio.google.com/apikey",
     keyLinkText: "Get a free Gemini key",
-    defaultModel: "gemini-3.6-flash",
+    defaultModel: "gemini-3.5-flash-lite",
     models: ["gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite"],
   },
   {
