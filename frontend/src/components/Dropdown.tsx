@@ -102,7 +102,7 @@ import {
            maxHeight: pos.maxHeight,
            transform: pos.above ? "translateY(-100%)" : undefined,
          }}
-         className="z-[70] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-white p-1.5 shadow-[var(--shadow-float)]"
+         className="menu-scroll z-[70] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-white p-1.5 shadow-[var(--shadow-float)]"
        >
          {children}
        </ul>,
