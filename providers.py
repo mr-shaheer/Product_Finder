@@ -16,7 +16,7 @@ PROVIDERS: dict[str, Provider] = {
     p.id: p
     for p in [
         Provider(
-            "gemini", "Google Gemini", "gemini/", "gemini-3.6-flash",
+            "gemini", "Google Gemini", "gemini/", "gemini-3.5-flash-lite",
             ("gemini-3.6-flash", "gemini-3.8-flash", "gemini-3.5-flash-lite"),
         ),
         Provider(
