@@ -134,7 +134,7 @@ export function Header() {
                       No searches yet.
                     </p>
                   ) : (
-                    <ul className="max-h-[min(18rem,60dvh)] overflow-auto sm:max-h-72">
+                    <ul className="menu-scroll max-h-[min(18rem,60dvh)] overflow-auto sm:max-h-72">
                       {recent.map((item) => (
                           <li key={item.id}>
                             <button
