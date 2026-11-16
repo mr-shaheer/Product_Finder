@@ -63,20 +63,19 @@ export function Header() {
 
   useEffect(() => {
     if (!historyOpen) return;
-  
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        historyRef.current &&
-        !historyRef.current.contains(event.target as Node)
-      ) {
-        setHistoryOpen(false);
-      }
-    };
-  
-    document.addEventListener("mousedown", handleClickOutside);
-  
+
+    function handlePointerDown(event: PointerEvent) {
+      if (!historyRef.current?.contains(event.target as Node)) setHistoryOpen(false);
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setHistoryOpen(false);
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [historyOpen]);
 
@@ -93,7 +92,7 @@ export function Header() {
           <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[var(--color-ink)] text-white">
             <Search className="h-3.5 w-3.5" strokeWidth={2.5} />
           </span>
-          Product Finder
+          <span className="hidden min-[380px]:inline">Product Finder</span>
         </button>
 
         <div className="ml-auto flex items-center gap-1">
@@ -103,13 +102,17 @@ export function Header() {
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-[var(--color-ink-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
               aria-label="Recent searches"
               aria-expanded={historyOpen}
+              aria-controls="search-history-panel"
             >
               <History className="h-[18px] w-[18px]" />
             </button>
             {historyOpen && (
               <>
                 
-                <div className="absolute right-0 top-11 z-20 w-72 rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-float)]">
+                <div
+                  id="search-history-panel"
+                  className="fixed inset-x-3 top-[4.5rem] z-40 rounded-2xl border border-[var(--color-border)] bg-white p-2 shadow-[var(--shadow-float)] sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:z-20 sm:w-72"
+                >
                   <div className="flex items-center justify-between px-2 py-1.5">
                     <span className="text-xs font-medium text-[var(--color-ink-muted)]">
                       Recent searches
@@ -131,7 +134,7 @@ export function Header() {
                       No searches yet.
                     </p>
                   ) : (
-                    <ul className="max-h-72 overflow-auto">
+                    <ul className="max-h-[min(18rem,60dvh)] overflow-auto sm:max-h-72">
                       {recent.map((item) => (
                           <li key={item.id}>
                             <button
