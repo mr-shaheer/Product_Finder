@@ -89,7 +89,7 @@ export default function Results() {
         </h1>
         {status === "done" && (
           <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
-            {products.length} {products.length === 1 ? "product" : "products"} found
+            {products.length} {products.length === 1 ? "product" : "products"} Ranked
           </p>
         )}
       </div>
