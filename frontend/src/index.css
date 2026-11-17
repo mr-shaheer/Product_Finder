@@ -221,6 +221,14 @@ input:disabled,
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
+/* Skeletons appear in sequence: each card starts a beat after the previous one. */
+.skeleton-stagger > :nth-child(2) .skeleton {
+  animation-delay: 150ms;
+}
+.skeleton-stagger > :nth-child(3) .skeleton {
+  animation-delay: 300ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse-dot, .animate-fade-up, .skeleton {
     animation: none !important;
