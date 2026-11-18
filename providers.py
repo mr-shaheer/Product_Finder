@@ -1,13 +1,11 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
-
 
 @dataclass(frozen=True)
 class Provider:
     id: str
     label: str
-    prefix: str          # LiteLLM routing prefix, e.g. "gemini/"
+    prefix: str        
     default_model: str
     models: tuple[str, ...]
 
@@ -48,23 +46,18 @@ PROVIDERS: dict[str, Provider] = {
             "meta-llama/Llama-3.3-70B-Instruct-Turbo",
             ("meta-llama/Llama-3.3-70B-Instruct-Turbo",),
         ),
-        # Any OpenAI-compatible server (needs a base URL and a model name).
         Provider("custom", "Custom (OpenAI-compatible)", "openai/", "", ()),
     ]
 }
 
 DEFAULT_PROVIDER = "gemini"
 
-
 def get_provider(provider_id: str) -> Provider:
     return PROVIDERS[provider_id]
 
 
 def litellm_model_name(provider_id: str, model: str) -> str:
-    """
-    Always route through the chosen provider's prefix, so a user can't smuggle
-    in e.g. 'bedrock/...' and make the server use its own cloud credentials.
-    """
+
     p = get_provider(provider_id)
     model = model.strip() or p.default_model
     if model.startswith(p.prefix):
